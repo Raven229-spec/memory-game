@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Game</title>
+<style>
+  body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+  }
+  h1 {
+    margin-bottom: 15px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 90px);
+    gap: 10px;
+  }
+  .tile {
+    width: 90px;
+    height: 90px;
+    background-color: #2980b9;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none; 
+  }
+  .matched img {
+    display: block; 
+  }
+</style>
+</head>
+<body>
+
+<h1>Memory Game</h1>
+<div class="grid" id="grid"></div>
+<p id="message"></p>
+
+<script>
+  const grid = document.getElementById('grid');
+  const message = document.getElementById('message');
+
+  // 8 PAIRS (16 total tiles) — replace with your image URLs
+  const images = [
+    'ampo.jpg',
+    'rey.jpg',
+    'yao.jpg',
+    'ed.jpg',
+    'alden.jpg',
+    'cal.jpg',
+    'malupit.jpg',
+    'jose.jpg',
+
+    // duplicates (pairs)
+    'ampo.jpg',
+    'rey.jpg',
+    'yao.jpg',
+    'ed.jpg',
+    'alden.jpg',
+    'cal.jpg',
+    'malupit.jpg',
+    'jose.jpg',
+
+  ];
+
+  let tiles = [];
+  let firstTile = null;
+  let secondTile = null;
+  let lock = false;
+  let matchedCount = 0;
+
+  // Randomize tiles
+  images.sort(() => Math.random() - 0.5);
+
+  // Create 16 tiles
+  images.forEach(src => {
+    const tile = document.createElement('div');
+    tile.classList.add('tile');
+
+    const img = document.createElement('img');
+    img.src = src;
+    tile.appendChild(img);
+
+    tile.addEventListener('click', () => flipTile(tile));
+    grid.appendChild(tile);
+    tiles.push(tile);
+  });
+
+  function flipTile(tile) {
+    if (lock || tile.classList.contains('matched') || tile === firstTile) return;
+
+    tile.querySelector('img').style.display = 'block';
+
+    if (!firstTile) {
+      firstTile = tile;
+    } else {
+      secondTile = tile;
+      lock = true;
+
+      const img1 = firstTile.querySelector('img').src;
+      const img2 = secondTile.querySelector('img').src;
+
+      if (img1 === img2) {
+        firstTile.classList.add('matched');
+        secondTile.classList.add('matched');
+        matchedCount += 2;
+        resetTiles();
+      } else {
+        setTimeout(() => {
+          firstTile.querySelector('img').style.display = 'none';
+          secondTile.querySelector('img').style.display = 'none';
+          resetTiles();
+        }, 900);
+      }
+    }
+
+    if (matchedCount === tiles.length) {
+      message.textContent = "You Win!";
+    }
+  }
+
+  function resetTiles() {
+    firstTile = null;
+    secondTile = null;
+    lock = false;
+  }
+</script>
+
+</body>
+</html>
